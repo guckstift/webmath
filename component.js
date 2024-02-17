@@ -10,11 +10,13 @@ export class MathElement extends HTMLElement
 		super();
 
 		let shadow = this.attachShadow({mode: "closed"});
-		let src = this.innerHTML;
+		let src = this.textContent;
 		let tokens = lex(src);
+		console.log(tokens);
 		let ast = parse(tokens);
 		console.log(ast);
 		let html = render(ast);
+		console.log(html);
 		let root = document.createElement("math-root");
 		let style = document.createElement("link");
 		style.onload = () => postprocess(root);

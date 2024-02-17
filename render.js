@@ -6,6 +6,10 @@ function render_op(op)
 		return "<math-op>&minus;</math-op>";
 	if(op === "*")
 		return "<math-op>&middot;</math-op>";
+	if(op === "<")
+		return "<math-op>&lt;</math-op>";
+	if(op === ">")
+		return "<math-op>&gt;</math-op>";
 	return `<math-op>${op}</math-op>`;
 }
 
@@ -70,30 +74,30 @@ export function render(ast)
 	if(ast.grouped > 1)
 		return render_group({...ast, grouped: ast.grouped - 1});
 
-	if(ast.type === "variable")
-		return `<var>${ast.name}</var>`;
+	if(ast.variable)
+		return `<var>${ast.variable}</var>`;
 
-	if(ast.type === "number")
-		return `<math-num>${ast.value}</math-num>`;
+	if(ast.number)
+		return `<math-num>${ast.number}</math-num>`;
 
-	if(ast.type === "binop")
-		return render_binop(ast.left, ast.op, ast.right);
+	if(ast.binop)
+		return render_binop(ast.left, ast.binop, ast.right);
 
-	if(ast.type === "prefixed")
-		return render_op(ast.op) + render(ast.child);
+	if(ast.prefix)
+		return render_op(ast.prefix) + render(ast.child);
 
-	if(ast.type === "power")
+	if(ast.power)
 		return `${render(ast.base)}<sup>${render(ast.expo)}</sup>`;
 
-	if(ast.type === "func")
+	if(ast.func)
 		return render_func(ast.func, ast.arg);
 
-	if(ast.type === "group")
-		return render_group(ast.child);
+	if(ast.group)
+		return render_group(ast.group);
 
-	if(ast.type === "equ")
+	if(ast.equ)
 		return render_equ(ast.chain);
 
-	if(ast.type === "list")
+	if(ast.list)
 		return ast.list.map(line => `<math-line>${render(line)}</math-line>`).join("");
 }

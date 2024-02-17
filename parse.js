@@ -2,7 +2,7 @@ let tokens = null;
 
 function match(query)
 {
-	return tokens.length && (!query || tokens[0].type === query || tokens[0].text === query);
+	return tokens.length && (!query || tokens[0][query] || tokens[0].text === query);
 }
 
 function eat(query)
@@ -17,13 +17,13 @@ function eat(query)
 function variable()
 {
 	if(match("name"))
-		return {type: "variable", name: eat().text};
+		return {variable: eat().text};
 }
 
 function number()
 {
 	if(match("number"))
-		return {type: "number", value: eat().text};
+		return {number: eat().text};
 }
 
 function group()
@@ -61,7 +61,7 @@ function func()
 		if(!eat(")"))
 			throw `expected ) after argument, got "${tokens[0]}"`;
 
-		return {type: "func", func: name.text, arg};
+		return {func: name.text, arg};
 	}
 
 	tokens = backup;
@@ -83,7 +83,7 @@ function power()
 	if(!expo)
 		throw `expected right side after ** got "${tokens[0]}"`;
 
-	return {type: "power", base, expo};
+	return {power: true, base, expo};
 }
 
 function prefixed()
@@ -96,7 +96,7 @@ function prefixed()
 		if(!child)
 			throw `expected expression after ${op.text} got "${tokens[0]}"`;
 
-		return {type: "prefixed", op: op.text, child};
+		return {prefix: op.text, child};
 	}
 
 	return power();
@@ -121,9 +121,9 @@ function binop(ops, subparser, level)
 			left = {type: "group", child: left}
 
 		if(op !== "/" && right.type === "binop" && right.level >= level)
-			right = {type: "group", child: right}
+			right = {group: right}
 
-		left = {type: "binop", left, op, right, level};
+		left = {binop: op, left, right, level};
 	}
 
 	return left;
@@ -164,7 +164,7 @@ function equ()
 	}
 
 	if(tail.length)
-		return {type: "equ", chain: [left, ... tail]};
+		return {equ: true, chain: [left, ... tail]};
 	else
 		return left;
 }
@@ -185,7 +185,7 @@ function list()
 			break;
 	}
 
-	return {type: "list", list};
+	return {list};
 }
 
 export function parse(_tokens)

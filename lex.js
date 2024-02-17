@@ -19,7 +19,7 @@ export function lex(src)
 			token = "punct";
 		}
 		else if(match = src.match(/^[⁰¹²³⁴⁵⁶⁷⁸⁹]+/)) {
-			tokens.push({type: "punct", text: "**"});
+			tokens.push({punct: "**", text: "**"});
 			match[0] = [...match[0]].map(char => "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(char)).join("");
 			token = "number";
 		}
@@ -28,7 +28,7 @@ export function lex(src)
 		}
 
 		if(token) {
-			tokens.push({type: token, text: match[0]});
+			tokens.push({[token]: match[0], text: match[0]});
 			src = src.slice(match[0].length);
 		}
 	}
