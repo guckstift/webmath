@@ -1,0 +1,91 @@
+math-root {
+	line-height: 1;
+}
+
+math-line {
+	display: block;
+    margin: 0.25em 0;
+}
+
+math-root var ,
+math-root sup ,
+math-op ,
+math-frac ,
+math-group ,
+math-lparen ,
+math-rparen ,
+math-num {
+	--background: rgba(255, 0, 0, 0.0625);
+	display: inline-block;
+}
+
+math-op {
+    margin: 0 0.25em;
+}
+
+math-root :is(sup, math-frac math-frac, sup math-frac) {
+	font-size: 0.75em;
+}
+
+math-root
+:is(sup, math-frac math-frac)
+:is(sup, math-frac)
+:is(sup, math-frac) {
+	font-size: 1em;
+}
+
+math-root sup {
+	vertical-align: 0;
+}
+
+math-frac {
+	--margin: 0 1px;
+}
+
+math-numer,
+math-denom {
+	display: block;
+	text-align: center;
+	padding: 0 1px;
+}
+
+math-hline {
+	display: block;
+	background: currentColor;
+	background-clip: content-box;
+	height: 1px;
+	padding: 1px 0;
+}
+
+math-group {
+	position: relative;
+	padding: 0 calc(0.25em + 2px);
+}
+
+math-group:before ,
+math-group:after {
+	content: "";
+	display: block;
+	position: absolute;
+	top: -1px;
+	bottom: -1px;
+	width: 0.25em;
+	box-sizing: border-box;
+	border: 1px solid currentColor;
+	border-color: transparent currentColor;
+	border-radius: 100% / min(50%, 1em);
+}
+
+math-group:before {
+	left: 1px;
+	border-right: none;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+math-group:after {
+	right: 1px;
+	border-left: none;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}

@@ -5,13 +5,19 @@
         <title>webmath</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="webmath demo">
-        <script type="module">
-        	import {lex} from "./lex.js";
-
-        	console.log( lex("1 + abc - 2³²") );
-        </script>
+        <script type="module" src="webmath.js"></script>
     </head>
     <body>
-    	<h1>webmath demo</h1>
+    	<!--h1>webmath demo</h1-->
+    	<math-block>
+    		(1+2) / (((3+4))) ;
+    		(2 + a) * b**2**2 ;
+    		2 + a**6 * x**(g**2/(2/6)) ;
+    		1*(2+3) ;
+    		((a - b)) - c - d;
+    		a - (b - c) - d;
+    		(a - b) - (c - d²/2²);
+    		(a - b) - (c - d/g/(2/6**2));
+    	</math-block>
     </body>
 </html>
