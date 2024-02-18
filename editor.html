@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<title>webmath editor</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="webmath demo">
+		<meta name="description" content="webmath editor demo">
 		<script type="module" src="webmath.js"></script>
 		<style>
 			body {
@@ -29,7 +29,7 @@
 		<script type="module">
 			document.querySelector("textarea").addEventListener("input", e => {
 				let block = document.querySelector("math-block");
-				block.innerText = e.target.value;
+				block.innerHTML = e.target.value;
 				block.update();
 			});
 		</script>

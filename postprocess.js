@@ -16,14 +16,16 @@ export function postprocess(elm)
 	else if(elm.matches("math-frac")) {
 		let frac = elm;
 		let parent = frac.parentElement;
+		let op = null
 
-		while(
-			parent.matches("math-group") || parent.matches("math-sqrt") || parent.matches("math-floor")
-			|| parent.matches("math-ceil")
-		)
-			parent = parent.parentElement;
+		while(true) {
+			op = parent.querySelector(":scope > math-op, :scope > math-col > math-op");
 
-		let op = parent ? parent.querySelector("math-op") : null;
+			if(!op && parent.matches("math-group, math-sqrt, math-floor, math-ceil, math-col"))
+				parent = parent.parentElement;
+			else
+				break;
+		}
 
 		if(op) {
 			let line = frac.querySelector(":scope > math-hline");
@@ -46,5 +48,19 @@ export function postprocess(elm)
 		let scale = sqrt_rect.height / base_size;
 
 		sqrt.style.setProperty("--scale", scale);
+	}
+	else if(elm.matches("math-line")) {
+		let i = 0;
+
+		for(let col of elm.querySelectorAll(":scope > math-col")) {
+			let col_var = "--col-" + i + "-width";
+			let col_rect = col.getBoundingClientRect();
+			let root = elm.closest("math-root");
+			let width = parseFloat(root.style.getPropertyValue(col_var) || 0);
+			width = Math.max(col_rect.width, width);
+			root.style.setProperty(col_var, width + "px");
+			col.style.minWidth = "var(" + col_var + ")";
+			i ++;
+		}
 	}
 }

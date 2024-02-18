@@ -1,3 +1,5 @@
+let align_at = null;
+
 function render_op(op, isprefix = false)
 {
 	let tag = isprefix ? "math-prefix" : "math-op";
@@ -16,10 +18,10 @@ function render_op(op, isprefix = false)
 	return `<${tag}>${op}</${tag}>`;
 }
 
-function render_binop(left, op, right)
+function render_binop(left, op, right, toplevel)
 {
-	left = render(left);
-	right = render(right);
+	left = render(left, op !== "/" && toplevel);
+	right = render(right, op !== "/" && toplevel);
 
 	if(op === "/")
 		return `<math-frac>
@@ -28,10 +30,15 @@ function render_binop(left, op, right)
 			<math-denom>${right}</math-denom>
 		</math-frac>`;
 
-	return left + render_op(op) + right;
+	let result = left;
+
+	if(toplevel && align_at === op)
+		result += "</math-col><math-col>";
+
+	return result + render_op(op) + right;
 }
 
-function render_func(func, arg)
+function render_func(func, arg, toplevel)
 {
 	if(func === "sqrt")
 		return"<math-sqrt>" + render(arg) +"</math-sqrt>";
@@ -50,15 +57,20 @@ function render_func(func, arg)
 	);
 }
 
-function render_equ(chain)
+function render_equ(chain, toplevel)
 {
 	let result = "";
 
 	while(chain.length) {
-		if(typeof chain[0] === "string")
+		if(typeof chain[0] === "string") {
+			if(toplevel && align_at === chain[0])
+				result += "</math-col><math-col>";
+
 			result += render_op(chain[0]);
-		else
-			result += render(chain[0]);
+		}
+		else {
+			result += render(chain[0], toplevel);
+		}
 
 		chain = chain.slice(1);
 	}
@@ -71,8 +83,16 @@ function render_group(child)
 	return "<math-group>" + render(child) + "</math-group>";
 }
 
-export function render(ast)
+function render_list(list)
 {
+	return list.map(line => `<math-line><math-col>${render(line, true)}</math-col></math-line>`).join("");
+}
+
+export function render(ast, toplevel = false, _align_at = null)
+{
+	if(_align_at !== null)
+		align_at = _align_at;
+
 	if(ast.grouped > 1)
 		return render_group({...ast, grouped: 0});
 
@@ -89,23 +109,20 @@ export function render(ast)
 		return `<span>${ast.string}</span>`;
 
 	if(ast.binop)
-		return render_binop(ast.left, ast.binop, ast.right);
+		return render_binop(ast.left, ast.binop, ast.right, toplevel);
 
 	if(ast.prefix)
-		return render_op(ast.prefix, true) + render(ast.child);
+		return render_op(ast.prefix, true) + render(ast.child, toplevel);
 
 	if(ast.power)
-		return `${render(ast.base)}<sup>${render(ast.expo)}</sup>`;
+		return `${render(ast.base, toplevel)}<sup>${render(ast.expo)}</sup>`;
 
 	if(ast.func)
-		return render_func(ast.func, ast.arg);
-
-	if(ast.group)
-		return render_group(ast.group);
+		return render_func(ast.func, ast.arg, toplevel);
 
 	if(ast.equ)
-		return render_equ(ast.chain);
+		return render_equ(ast.chain, toplevel);
 
 	if(ast.list)
-		return ast.list.map(line => `<math-line>${render(line)}</math-line>`).join("");
+		return render_list(ast.list);
 }

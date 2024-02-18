@@ -113,7 +113,7 @@ function prefixed()
 		if(!child)
 			child = placeholder();
 
-		if(child.level > level)
+		if(child.level > level && child.binop !== "/")
 			inc_group(child);
 
 		return {prefix: op.text, child, level};
@@ -140,7 +140,7 @@ function binop(ops, subparser, level)
 		if(op !== "/" && left.level > level)
 			inc_group(left);
 
-		if(op !== "/" && right.level >= level)
+		if(op !== "/" && right.level >= level && right.binop !== "/")
 			inc_group(right);
 
 		left = {binop: op, left, right, level};

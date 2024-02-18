@@ -9,33 +9,20 @@ export class MathElement extends HTMLElement
 	{
 		super();
 
-		let shadow = this.shadow = this.attachShadow({mode: "closed"});
-		let src = this.textContent;
-		let tokens = lex(src);
-		console.log(tokens);
-		let ast = parse(tokens);
-		console.log(ast);
-		let html = render(ast);
-		console.log(html);
-		let root = document.createElement("math-root");
-		let style = document.createElement("link");
-		style.onload = () => postprocess(root);
-		style.rel = "stylesheet";
-		style.href = "./style.css";
-		root.innerHTML = html;
-		shadow.append(style);
-		shadow.append(root);
+		this.shadow = this.attachShadow({mode: "closed"});
+		this.update();
 	}
 
 	update()
 	{
 		let src = this.textContent;
+		//console.log(src);
 		let tokens = lex(src);
-		console.log(tokens);
+		//console.log(tokens);
 		let ast = parse(tokens);
 		console.log(ast);
-		let html = render(ast);
-		console.log(html);
+		let html = render(ast, false, "=");
+		//console.log(html);
 		let root = document.createElement("math-root");
 		let style = document.createElement("link");
 		style.onload = () => postprocess(root);

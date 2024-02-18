@@ -19,6 +19,7 @@ math-rparen ,
 math-sqrt ,
 math-floor ,
 math-ceil ,
+math-col ,
 math-num {
 	--background: rgba(255, 0, 0, 0.0625);
 	display: inline-block;
@@ -26,6 +27,10 @@ math-num {
 
 math-op {
     margin: 0 0.25em;
+}
+
+math-prefix {
+    margin-right: 0.25em;
 }
 
 math-root :is(sup, math-frac math-frac, sup math-frac) {
@@ -177,4 +182,8 @@ math-ceil:before {
 math-ceil:after {
 	right: 0;
 	border-right: 1px solid currentColor;
+}
+
+math-col:first-child:not(:last-child) {
+	text-align: right;
 }
