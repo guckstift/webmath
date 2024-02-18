@@ -17,7 +17,10 @@ export function postprocess(elm)
 		let frac = elm;
 		let parent = frac.parentElement;
 
-		while(parent.matches("math-group") || parent.matches("math-sqrt"))
+		while(
+			parent.matches("math-group") || parent.matches("math-sqrt") || parent.matches("math-floor")
+			|| parent.matches("math-ceil")
+		)
 			parent = parent.parentElement;
 
 		let op = parent ? parent.querySelector("math-op") : null;

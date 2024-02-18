@@ -36,6 +36,12 @@ function render_func(func, arg)
 	if(func === "sqrt")
 		return"<math-sqrt>" + render(arg) +"</math-sqrt>";
 
+	if(func === "floor")
+		return"<math-floor>" + render(arg) +"</math-floor>";
+
+	if(func === "ceil")
+		return"<math-ceil>" + render(arg) +"</math-ceil>";
+
 	return (
 		`<var>${func}</var>` +
 		"<math-group>" +

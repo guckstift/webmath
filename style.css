@@ -17,6 +17,8 @@ math-group ,
 math-lparen ,
 math-rparen ,
 math-sqrt ,
+math-floor ,
+math-ceil ,
 math-num {
 	--background: rgba(255, 0, 0, 0.0625);
 	display: inline-block;
@@ -96,30 +98,83 @@ math-sqrt {
 	position: relative;
 }
 
-math-sqrt:before {
-	content: "";
-	display: block;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0.558em;
-	border-top: 1px solid currentColor;
-	border-left: 1px solid currentColor;
-	transform:  translateX(0.3em) skewX(calc(-15deg / var(--scale)));
-	transform-origin: bottom;
-}
-
+math-sqrt:before ,
 math-sqrt:after {
 	content: "";
 	display: block;
 	position: absolute;
-	top: 55%;
 	bottom: 0;
+	border-top: 1px solid currentColor;
+	transform-origin: bottom;
+}
+
+math-sqrt:before {
+	top: 0;
+	left: 0;
+	right: 0.558em;
+	border-left: 1px solid currentColor;
+	transform:  translateX(0.3em) skewX(calc(-15deg / var(--scale)));
+}
+
+math-sqrt:after {
+	top: 55%;
 	left: 0.175em;
 	width: 0.125em;
 	border-top: 1px solid currentColor;
 	border-right: 1px solid currentColor;
 	transform: skewX(calc(15deg / var(--scale)));
-	transform-origin: bottom;
+}
+
+math-floor {
+	padding: 0 calc(0.25em + 1px);
+	padding-bottom: 1px;
+	position: relative;
+}
+
+math-floor:before ,
+math-floor:after {
+	content: "";
+	display: block;
+	position: absolute;
+	border-bottom: 1px solid currentColor;
+	width: 0.25em;
+	top: 0;
+	bottom: 0;
+}
+
+math-floor:before {
+	left: 0;
+	border-left: 1px solid currentColor;
+}
+
+math-floor:after {
+	right: 0;
+	border-right: 1px solid currentColor;
+}
+
+math-ceil {
+	padding: 0 calc(0.25em + 1px);
+	padding-top: 1px;
+	position: relative;
+}
+
+math-ceil:before ,
+math-ceil:after {
+	content: "";
+	display: block;
+	position: absolute;
+	border-top: 1px solid currentColor;
+	width: 0.25em;
+	top: 0;
+	bottom: 0;
+}
+
+math-ceil:before {
+	left: 0;
+	border-left: 1px solid currentColor;
+}
+
+math-ceil:after {
+	right: 0;
+	border-right: 1px solid currentColor;
 }
