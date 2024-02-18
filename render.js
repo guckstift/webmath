@@ -65,7 +65,7 @@ function render_group(child)
 export function render(ast)
 {
 	if(ast.grouped > 1)
-		return render_group({...ast, grouped: ast.grouped - 1});
+		return render_group({...ast, grouped: 0});
 
 	if(ast.variable)
 		return `<var>${ast.variable}</var>`;

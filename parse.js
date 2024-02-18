@@ -14,16 +14,21 @@ function eat(query)
 	}
 }
 
+function inc_group(e)
+{
+	e.grouped = e.grouped ? e.grouped + 1 : 1;
+}
+
 function variable()
 {
 	if(match("name"))
-		return {variable: eat().text};
+		return {variable: eat().text, level: 0};
 }
 
 function number()
 {
 	if(match("number"))
-		return {number: eat().text};
+		return {number: eat().text, level: 0};
 }
 
 function group()
@@ -37,7 +42,7 @@ function group()
 		if(!eat(")"))
 			throw `expected ) after expression got "${tokens[0]}"`;
 
-		e.grouped = e.grouped ? e.grouped + 1 : 1;
+		inc_group(e);
 		return e;
 	}
 }
@@ -70,6 +75,7 @@ function func()
 
 function power()
 {
+	const level = 1;
 	let base = func();
 
 	if(!base)
@@ -78,16 +84,20 @@ function power()
 	if(!eat("**"))
 		return base;
 
+	if(base.level > level)
+		inc_group(base);
+
 	let expo = power();
 
 	if(!expo)
 		throw `expected right side after ** got "${tokens[0]}"`;
 
-	return {power: true, base, expo};
+	return {power: true, base, expo, level};
 }
 
 function prefixed()
 {
+	const level = 2;
 	let op = eat("+-") || eat("+") || eat("-");
 
 	if(op) {
@@ -96,7 +106,10 @@ function prefixed()
 		if(!child)
 			throw `expected expression after ${op.text} got "${tokens[0]}"`;
 
-		return {prefix: op.text, child};
+		if(child.level > level)
+			inc_group(child);
+
+		return {prefix: op.text, child, level};
 	}
 
 	return power();
@@ -117,11 +130,11 @@ function binop(ops, subparser, level)
 		if(!right)
 			throw `expected right side after ${op.text} got "${tokens[0]}"`;
 
-		if(op !== "/" && left.binop && left.level > level)
-			left.grouped = left.grouped ? left.grouped + 1 : 1;
+		if(op !== "/" && left.level > level)
+			inc_group(left);
 
-		if(op !== "/" && right.binop && right.level >= level)
-			right.grouped = right.grouped ? right.grouped + 1 : 1;
+		if(op !== "/" && right.level >= level)
+			inc_group(right);
 
 		left = {binop: op, left, right, level};
 	}
@@ -131,12 +144,12 @@ function binop(ops, subparser, level)
 
 function mul()
 {
-	return binop(["*", "/"], prefixed, 0);
+	return binop(["*", "/"], prefixed, 10);
 }
 
 function add()
 {
-	return binop(["+", "-"], mul, 1);
+	return binop(["+", "-"], mul, 11);
 }
 
 function expr()
