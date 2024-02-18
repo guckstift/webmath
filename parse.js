@@ -19,6 +19,11 @@ function inc_group(e)
 	e.grouped = e.grouped ? e.grouped + 1 : 1;
 }
 
+function placeholder()
+{
+	return {placeholder: true}
+}
+
 function variable()
 {
 	if(match("name"))
@@ -31,17 +36,21 @@ function number()
 		return {number: eat().text, level: 0};
 }
 
+function string()
+{
+	if(match("string"))
+		return {string: eat().text, level: 0};
+}
+
 function group()
 {
 	if(eat("(")) {
 		let e = expr();
 
 		if(!e)
-			throw `expected expression after ( got "${tokens[0]}"`;
+			e = placeholder();
 
-		if(!eat(")"))
-			throw `expected ) after expression got "${tokens[0]}"`;
-
+		eat(")");
 		inc_group(e);
 		return e;
 	}
@@ -49,7 +58,7 @@ function group()
 
 function atom()
 {
-	return variable() || number() || group();
+	return variable() || number() || string() || group();
 }
 
 function func()
@@ -61,11 +70,9 @@ function func()
 		let arg = expr();
 
 		if(!arg)
-			throw `expected argument after ( got "${tokens[0]}"`;
+			arg = placeholder();
 
-		if(!eat(")"))
-			throw `expected ) after argument, got "${tokens[0]}"`;
-
+		eat(")");
 		return {func: name.text, arg};
 	}
 
@@ -81,7 +88,7 @@ function power()
 	if(!base)
 		return;
 
-	if(!eat("**"))
+	if(!eat("**") && !eat("^"))
 		return base;
 
 	if(base.level > level)
@@ -90,7 +97,7 @@ function power()
 	let expo = power();
 
 	if(!expo)
-		throw `expected right side after ** got "${tokens[0]}"`;
+		expo = placeholder();
 
 	return {power: true, base, expo, level};
 }
@@ -104,7 +111,7 @@ function prefixed()
 		let child = power();
 
 		if(!child)
-			throw `expected expression after ${op.text} got "${tokens[0]}"`;
+			child = placeholder();
 
 		if(child.level > level)
 			inc_group(child);
@@ -128,7 +135,7 @@ function binop(ops, subparser, level)
 		let right = subparser();
 
 		if(!right)
-			throw `expected right side after ${op.text} got "${tokens[0]}"`;
+			right = placeholder();
 
 		if(op !== "/" && left.level > level)
 			inc_group(left);
@@ -171,7 +178,7 @@ function equ()
 		let right = expr();
 
 		if(!right)
-			throw `expected right side after ${op.text} got "${tokens[0]}"`;
+			right = placeholder();
 
 		tail.push(op.text, right);
 	}
@@ -193,9 +200,7 @@ function list()
 			break;
 
 		list.push(eq);
-
-		if(!eat(";"))
-			break;
+		eat(";")
 	}
 
 	return {list};
@@ -205,9 +210,5 @@ export function parse(_tokens)
 {
 	tokens = _tokens;
 	let result = list();
-
-	if(tokens.length)
-		throw `unconsumed token "${tokens[0]}"`;
-
 	return result;
 }

@@ -15,7 +15,7 @@ export function lex(src)
 		else if(match = src.match(/^\d+(\.\d+)?/)) {
 			token = "number";
 		}
-		else if(match = src.match(/^(\*\*|\+\-|\+|\-|\*|\/|\=|\;|\(|\)|\<|\>)/)) {
+		else if(match = src.match(/^(\*\*|\+\-|\+|\-|\*|\/|\=|\;|\(|\)|\<|\>|\^)/)) {
 			token = "punct";
 		}
 		else if(match = src.match(/^[⁰¹²³⁴⁵⁶⁷⁸⁹]+/)) {
@@ -24,7 +24,14 @@ export function lex(src)
 			token = "number";
 		}
 		else {
-			throw `unknown token "${src[0]}"`;
+			token = "string";
+			match = [src[0]];
+
+			if(tokens.length && tokens[tokens.length - 1].string) {
+				tokens[tokens.length - 1].text += match[0];
+				token = null;
+				src = src.slice(1);
+			}
 		}
 
 		if(token) {

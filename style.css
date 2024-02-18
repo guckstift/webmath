@@ -9,7 +9,9 @@ math-line {
 
 math-root var ,
 math-root sup ,
+math-root span,
 math-op ,
+math-prefix ,
 math-frac ,
 math-group ,
 math-lparen ,

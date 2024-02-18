@@ -1,16 +1,19 @@
-function render_op(op)
+function render_op(op, isprefix = false)
 {
+	let tag = isprefix ? "math-prefix" : "math-op";
+
 	if(op === "+-")
-		return "<math-op>&plusmn;</math-op>";
+		return `<${tag}>&plusmn;</${tag}>`;
 	if(op === "-")
-		return "<math-op>&minus;</math-op>";
+		return `<${tag}>&minus;</${tag}>`;
 	if(op === "*")
-		return "<math-op>&middot;</math-op>";
+		return `<${tag}>&middot;</${tag}>`;
 	if(op === "<")
-		return "<math-op>&lt;</math-op>";
+		return `<${tag}>&lt;</${tag}>`;
 	if(op === ">")
-		return "<math-op>&gt;</math-op>";
-	return `<math-op>${op}</math-op>`;
+		return `<${tag}>&gt;</${tag}>`;
+
+	return `<${tag}>${op}</${tag}>`;
 }
 
 function render_binop(left, op, right)
@@ -67,17 +70,23 @@ export function render(ast)
 	if(ast.grouped > 1)
 		return render_group({...ast, grouped: 0});
 
+	if(ast.placeholder)
+		return `<span>&squ;</span>`;
+
 	if(ast.variable)
 		return `<var>${ast.variable}</var>`;
 
 	if(ast.number)
 		return `<math-num>${ast.number}</math-num>`;
 
+	if(ast.string)
+		return `<span>${ast.string}</span>`;
+
 	if(ast.binop)
 		return render_binop(ast.left, ast.binop, ast.right);
 
 	if(ast.prefix)
-		return render_op(ast.prefix) + render(ast.child);
+		return render_op(ast.prefix, true) + render(ast.child);
 
 	if(ast.power)
 		return `${render(ast.base)}<sup>${render(ast.expo)}</sup>`;
