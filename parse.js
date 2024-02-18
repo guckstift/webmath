@@ -117,11 +117,11 @@ function binop(ops, subparser, level)
 		if(!right)
 			throw `expected right side after ${op.text} got "${tokens[0]}"`;
 
-		if(op !== "/" && left.type === "binop" && left.level > level)
-			left = {type: "group", child: left}
+		if(op !== "/" && left.binop && left.level > level)
+			left.grouped = left.grouped ? left.grouped + 1 : 1;
 
-		if(op !== "/" && right.type === "binop" && right.level >= level)
-			right = {group: right}
+		if(op !== "/" && right.binop && right.level >= level)
+			right.grouped = right.grouped ? right.grouped + 1 : 1;
 
 		left = {binop: op, left, right, level};
 	}

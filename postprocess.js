@@ -11,11 +11,16 @@ export function postprocess(elm)
 		let base_rect = base.getBoundingClientRect();
 		let font_size = parseFloat(getComputedStyle(sup).fontSize);
 
-		elm.style.verticalAlign = (sup_rect.bottom - base_rect.y - 2 * font_size / 3) + "px";
+		sup.style.verticalAlign = (sup_rect.bottom - base_rect.y - 2 * font_size / 3) + "px";
 	}
 	else if(elm.matches("math-frac")) {
 		let frac = elm;
-		let op = [].find.call(frac.parentElement.children, c => c.matches("math-op"));
+		let parent = frac.parentElement;
+
+		while(parent.matches("math-group") || parent.matches("math-sqrt"))
+			parent = parent.parentElement;
+
+		let op = parent ? parent.querySelector("math-op") : null;
 
 		if(op) {
 			let line = frac.querySelector(":scope > math-hline");
@@ -25,10 +30,18 @@ export function postprocess(elm)
 			frac.style.verticalAlign = (line_rect.y + line_rect.bottom) / 2 - (op_rect.y + op_rect.bottom) / 2 + "px";
 		}
 		else {
-			let fract_rect = frac.parentElement.getBoundingClientRect();
+			let frac_rect = frac.parentElement.getBoundingClientRect();
 			let parent_rect = frac.getBoundingClientRect();
 
-			frac.style.verticalAlign = parent_rect.bottom - fract_rect.bottom + "px";
+			frac.style.verticalAlign = parent_rect.bottom - frac_rect.bottom + "px";
 		}
+	}
+	else if(elm.matches("math-sqrt")) {
+		let sqrt = elm;
+		let base_size = parseFloat(getComputedStyle(sqrt).fontSize) + 1;
+		let sqrt_rect = sqrt.getBoundingClientRect();
+		let scale = sqrt_rect.height / base_size;
+
+		sqrt.style.setProperty("--scale", scale);
 	}
 }

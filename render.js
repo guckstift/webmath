@@ -31,14 +31,7 @@ function render_binop(left, op, right)
 function render_func(func, arg)
 {
 	if(func === "sqrt")
-		return (
-			"<math-sqrt>" +
-			"<math-sqrt-stroke1></math-sqrt-stroke1>" +
-			"<math-sqrt-stroke2></math-sqrt-stroke2>" +
-			"<math-radicand>" +
-			render(arg) +
-			"</math-radicand></math-sqrt>"
-		);
+		return"<math-sqrt>" + render(arg) +"</math-sqrt>";
 
 	return (
 		`<var>${func}</var>` +
