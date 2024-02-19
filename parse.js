@@ -30,25 +30,6 @@ function variable()
 		return {variable: eat().text, level: 0};
 }
 
-function subscript()
-{
-	let vari = variable();
-
-	if(!vari)
-		return;
-
-	if(eat("_")) {
-		let sub = atom();
-
-		if(!sub)
-			sub = placeholder();
-
-		return {subscript: sub, base: vari};
-	}
-
-	return vari;
-}
-
 function number()
 {
 	if(match("number"))
@@ -77,7 +58,26 @@ function group()
 
 function atom()
 {
-	return subscript() || number() || string() || group();
+	return variable() || number() || string() || group();
+}
+
+function subscript()
+{
+	let vari = atom();
+
+	if(!vari)
+		return;
+
+	if(eat("_")) {
+		let sub = subscript();
+
+		if(!sub)
+			sub = placeholder();
+
+		return {subscript: sub, base: vari};
+	}
+
+	return vari;
 }
 
 function func()
@@ -96,7 +96,7 @@ function func()
 	}
 
 	tokens = backup;
-	return atom();
+	return subscript();
 }
 
 function power()

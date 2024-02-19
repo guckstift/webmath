@@ -103,7 +103,7 @@ export function render(ast, toplevel = false, _align_at = null)
 		return `<var>${ast.variable}</var>`;
 
 	if(ast.subscript)
-		return `<var>${ast.base.variable}</var><sub>${render(ast.subscript)}</sub>`;
+		return `<span>${render(ast.base, toplevel)}<sub>${render(ast.subscript)}</sub></span>`;
 
 	if(ast.number)
 		return `<math-num>${ast.number}</math-num>`;
@@ -118,7 +118,7 @@ export function render(ast, toplevel = false, _align_at = null)
 		return render_op(ast.prefix, true) + render(ast.child, toplevel);
 
 	if(ast.power)
-		return `${render(ast.base, toplevel)}<sup>${render(ast.expo)}</sup>`;
+		return `<span>${render(ast.base, toplevel)}<sup>${render(ast.expo)}</sup></span>`;
 
 	if(ast.func)
 		return render_func(ast.func, ast.arg, toplevel);
