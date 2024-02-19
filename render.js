@@ -102,6 +102,9 @@ export function render(ast, toplevel = false, _align_at = null)
 	if(ast.variable)
 		return `<var>${ast.variable}</var>`;
 
+	if(ast.subscript)
+		return `<var>${ast.base.variable}</var><sub>${render(ast.subscript)}</sub>`;
+
 	if(ast.number)
 		return `<math-num>${ast.number}</math-num>`;
 

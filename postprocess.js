@@ -13,6 +13,15 @@ export function postprocess(elm)
 
 		sup.style.verticalAlign = (sup_rect.bottom - base_rect.y - 2 * font_size / 3) + "px";
 	}
+	else if(elm.matches("sub")) {
+		let sub = elm;
+		let base = sub.previousElementSibling;
+		let sub_rect = sub.getBoundingClientRect();
+		let base_rect = base.getBoundingClientRect();
+		let font_size = parseFloat(getComputedStyle(sub).fontSize);
+
+		sub.style.verticalAlign = (sub_rect.y - base_rect.bottom + 2 * font_size / 3) + "px";
+	}
 	else if(elm.matches("math-frac")) {
 		let frac = elm;
 		let parent = frac.parentElement;

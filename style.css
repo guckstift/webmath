@@ -9,6 +9,7 @@ math-line {
 
 math-root var ,
 math-root sup ,
+math-root sub ,
 math-root span,
 math-op ,
 math-prefix ,
@@ -33,18 +34,22 @@ math-prefix {
     margin-right: 0.25em;
 }
 
-math-root :is(sup, math-frac math-frac, sup math-frac) {
+math-root :is(sup, sub, math-frac math-frac, sup math-frac, sub math-frac) {
 	font-size: 0.75em;
 }
 
 math-root
-:is(sup, math-frac math-frac)
-:is(sup, math-frac)
-:is(sup, math-frac) {
+:is(sup, sub, math-frac math-frac)
+:is(sup, sub, math-frac)
+:is(sup, sub, math-frac) {
 	font-size: 1em;
 }
 
 math-root sup {
+	vertical-align: 0;
+}
+
+math-root sub {
 	vertical-align: 0;
 }
 

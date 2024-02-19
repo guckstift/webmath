@@ -30,6 +30,25 @@ function variable()
 		return {variable: eat().text, level: 0};
 }
 
+function subscript()
+{
+	let vari = variable();
+
+	if(!vari)
+		return;
+
+	if(eat("_")) {
+		let sub = atom();
+
+		if(!sub)
+			sub = placeholder();
+
+		return {subscript: sub, base: vari};
+	}
+
+	return vari;
+}
+
 function number()
 {
 	if(match("number"))
@@ -58,7 +77,7 @@ function group()
 
 function atom()
 {
-	return variable() || number() || string() || group();
+	return subscript() || number() || string() || group();
 }
 
 function func()
