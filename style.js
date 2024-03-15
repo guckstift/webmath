@@ -1,3 +1,4 @@
+export let style = `
 * ,
 *:before ,
 *:after {
@@ -193,3 +194,4 @@ math-ceil:after {
 math-col:first-child:not(:last-child) {
 	text-align: right;
 }
+`;

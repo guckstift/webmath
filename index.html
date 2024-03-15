@@ -5,31 +5,69 @@
 		<title>webmath</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="description" content="webmath demo">
-		<script type="module" src="webmath.js"></script>
+		<script src="webmath.js"></script>
 	</head>
 	<body>
-		<h1>webmath demo</h1>
+		<h1>webmath demo page</h1>
+		<h2>quadratic solution</h2>
+		<math-block align-at="=">
+			a*x² + b*x + c = 0 ;
+			x² + (b/a)*x + c/a = 0 ;
+			x² + (b/a)*x + c/a + (( b / (2*a) ))² = (( b / (2*a) ))² ;
+			x² + (b/a)*x + (( b / (2*a) ))² = (( b / (2*a) ))² - c/a;
+
+			x² + 2 * (b / (2*a)) * x + (( b / (2*a) ))² =
+				(( b / (2*a) ))² - c/a ;
+
+			( x + b / (2*a) )² = (( b / (2*a) ))² - c/a ;
+
+			x + b / (2*a) = +- sqrt( (( b / (2*a) ))² - c/a ) ;
+
+			x = +- sqrt( (( b / (2*a) ))² - c/a ) - b / (2*a) ;
+
+			x = +- sqrt( b² / (4*a²) - c/a ) - b / (2*a) ;
+
+			x = +- sqrt( b² / (4*a²) - 4*a*c / (4*a²)) - b / (2*a) ;
+
+			x = +- sqrt( (b²- 4*a*c) / (4*a²) ) - b / (2*a) ;
+
+			x = +- (sqrt( b²- 4*a*c ) / (2*a) - b / (2*a) ) ;
+
+			x = +- ( ( sqrt( b²- 4*a*c ) - b) / (2*a) );
+		</math-block>
+		<h2>misc</h2>
 		<math-block>
-			a_a^a ;
-			(a^a)_a ;
-			f_a^a + (f^a)_a + f_a + f^a;
-			x_x + x_x_x + x_x_x_x + x^x^x^x + x^x^x + x^x;
-			x_(1/2) + x^(1/2) + x^(1/2 + 1)
-			  ((a*b)/c)*d;
-			d*((a*b)/c);
-			x = ceil(((x/2))) + floor(((x/2)));
-			f = (-1)**s ;
-			sqrt(2) + sqrt(2/2) + sqrt(1/2/3);
-			1 * (1/2) ;
-			f(x) ;
-			a - (b - (c) - d);
-			(1+2) / ((3+4)) ;
-			(2 + a) * b**2**2 ;
-			2 + a**6 * x**(g**2/(2/6)) ;
-			1*(2+3) = 89 < a> 0 ;
-			((a - b)) - c - d;
-			(a - b) - (c - d²/2²);
-			(a - b) - (c - d/g/(2/6**2));
+			b + a/b + a/b/b + a/b/b/b + a/b/b/b/b
+		</math-block>
+		<math-block>
+			2 + 2**2 + 2**(2**2) + 2**(2**(2**2))
+		</math-block>
+		<math-block align-at="+ - =">
+			x^(1/2) ;
+			(1/2)² ;
+			(1+2)² ;
+			f = (-1)^s * (1 + m / 2^52) * 2^(e-1023) ;
+			floor(x) / ceil(x) + 2^(floor(x) / ceil(x)) ;
+			floor(x) + (x) + ceil(x);
+			(a + b) + c ;
+			a + (b + c) ;
+			sqrt(x) + sqrt(x/y) ;
+			a² + b² = c² ;
+			a² = c² - b² ;
+			a + (a + 1)/b - a/(b-1) + 1/b/c ;
+			2^2 + 2^(2+2/2) + 2^2^2 + 2^2^2^2
+		</math-block>
+		<h2>up and down</h2>
+		<math-block>
+			2 + 2^2 + 2^2^2 + 2^2^2^2 + 2/2 + 2^(2/2) + 2^2/2/2 ;
+
+				y + a**2 + a**2**2 + a**2**2**2;
+				a - (b - c) + (x + y)**2**2 ;
+				1 + 1/2 + (1+1/(2+2))/3² + 1/(2/(3+3)) + (1+1/2/c)/3/4;
+				a² + a**(1/2) + a**(1+1/2) + a**(1+1/(2/3)) ;
+				a² + (a/b)² ;
+				a_a + a_a_a + a_a_a_a + a^a + a^a_a + (a^a_a_a) ;
+				a_a + a_(a^2) + a_(a^2^2^2) + a_(1/2) + a_(1+1/2)
 		</math-block>
 	</body>
 </html>

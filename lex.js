@@ -1,42 +1,30 @@
 export function lex(src)
 {
 	let tokens = [];
+	let match = [""];
 
-	while(src) {
-		let match = null;
-		let token = null;
-
-		if(/^[\n\t ]/.test(src)) {
-			src = src.slice(1);
+	while(src = src.slice(match[0].length)) {
+		if(match = src.match(/^[\n\t ]+/)) {
+			// ignore
 		}
 		else if(match = src.match(/^[a-zA-Z]+/)) {
-			token = "name";
+			tokens.push({name: match[0]});
 		}
 		else if(match = src.match(/^\d+(\.\d+)?/)) {
-			token = "number";
+			tokens.push({number: match[0]});
 		}
 		else if(match = src.match(/^(\*\*|\+\-|\+|\-|\*|\/|\=|\;|\(|\)|\<|\>|\^|\_)/)) {
-			token = "punct";
+			tokens.push({punct: match[0]});
 		}
 		else if(match = src.match(/^[⁰¹²³⁴⁵⁶⁷⁸⁹]+/)) {
-			tokens.push({punct: "**", text: "**"});
-			match[0] = [...match[0]].map(char => "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(char)).join("");
-			token = "number";
+			let text = [...match[0]].map(char => "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(char)).join("");
+			tokens.push({punct: "**"}, {number: text});
 		}
-		else {
-			token = "string";
-			match = [src[0]];
-
-			if(tokens.length && tokens[tokens.length - 1].string) {
-				tokens[tokens.length - 1].text += match[0];
-				token = null;
-				src = src.slice(1);
-			}
-		}
-
-		if(token) {
-			tokens.push({[token]: match[0], text: match[0]});
-			src = src.slice(match[0].length);
+		else if(match = [src[0]]) {
+			if(tokens.length && tokens[tokens.length - 1].string)
+				tokens[tokens.length - 1].string += match[0];
+			else
+				tokens.push({string: match[0]});
 		}
 	}
 

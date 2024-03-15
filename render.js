@@ -1,4 +1,44 @@
-let align_at = null;
+let align_at = [];
+
+function render_group(group, force = false)
+{
+	if(!force && group.binop === "/")
+		return render_node(group);
+
+	return `<math-group>${render_node(group)}</math-group>`;
+}
+
+function render_subscript(base, subscript, toplevel)
+{
+	return `${render_node(base, toplevel)}<sub>${render_node(subscript.group ?? subscript)}</sub>`;
+}
+
+function render_func(func, arg, toplevel)
+{
+	if(func.variable) {
+		if(func.variable === "sqrt")
+			return `<math-sqrt>${render_node(arg)}</math-sqrt>`;
+		if(func.variable === "floor")
+			return `<math-floor>${render_node(arg)}</math-floor>`;
+		if(func.variable === "ceil")
+			return `<math-ceil>${render_node(arg)}</math-ceil>`;
+	}
+
+	return `${render_node(func, toplevel)}<math-group>${render_node(arg)}</math-group>`;
+}
+
+function render_power(base, expo, toplevel)
+{
+	let result = "";
+
+	if(base.group)
+		result += render_group(base.group, true);
+	else
+		result += render_node(base, toplevel);
+
+	result += `<sup>${render_node(expo.group ?? expo)}</sup>`;
+	return result;
+}
 
 function render_op(op, isprefix = false)
 {
@@ -18,114 +58,83 @@ function render_op(op, isprefix = false)
 	return `<${tag}>${op}</${tag}>`;
 }
 
-function render_binop(left, op, right, toplevel)
+function render_frac(left, right)
 {
-	left = render(left, op !== "/" && toplevel);
-	right = render(right, op !== "/" && toplevel);
-
-	if(op === "/")
-		return `<math-frac>
-			<math-numer>${left}</math-numer>
-			<math-hline></math-hline>
-			<math-denom>${right}</math-denom>
-		</math-frac>`;
-
-	let result = left;
-
-	if(toplevel && align_at === op)
-		result += "</math-col><math-col>";
-
-	return result + render_op(op) + right;
+	left = render_node(left.group ?? left);
+	right = render_node(right.group ?? right);
+	return `<math-frac><math-numer>${left}</math-numer><math-denom>${right}</math-denom></math-frac>`;
 }
 
-function render_func(func, arg, toplevel)
+function render_binop(left, op, right, toplevel)
 {
-	if(func === "sqrt")
-		return"<math-sqrt>" + render(arg) +"</math-sqrt>";
+	if(op === "/")
+		return render_frac(left, right);
 
-	if(func === "floor")
-		return"<math-floor>" + render(arg) +"</math-floor>";
-
-	if(func === "ceil")
-		return"<math-ceil>" + render(arg) +"</math-ceil>";
-
-	return (
-		`<var>${func}</var>` +
-		"<math-group>" +
-		render(arg) +
-		"</math-group>"
-	);
+	left = render_node(left, toplevel);
+	right = render_node(right, toplevel);
+	return left + (toplevel && align_at.includes(op) ? "</math-col><math-col>" : "") + render_op(op) + right;
 }
 
 function render_equ(chain, toplevel)
 {
 	let result = "";
 
-	while(chain.length) {
-		if(typeof chain[0] === "string") {
-			if(toplevel && align_at === chain[0])
+	for(let i=0; i < chain.length; i++) {
+		if(typeof chain[i] === "string") {
+			if(toplevel && align_at.includes(chain[i]))
 				result += "</math-col><math-col>";
 
-			result += render_op(chain[0]);
+			result += render_op(chain[i]);
 		}
 		else {
-			result += render(chain[0], toplevel);
+			result += render_node(chain[i], toplevel);
 		}
-
-		chain = chain.slice(1);
 	}
 
 	return result;
 }
 
-function render_group(child)
+export function render_node(node, toplevel = false)
 {
-	return "<math-group>" + render(child) + "</math-group>";
-}
-
-function render_list(list)
-{
-	return list.map(line => `<math-line><math-col>${render(line, true)}</math-col></math-line>`).join("");
-}
-
-export function render(ast, toplevel = false, _align_at = null)
-{
-	if(_align_at !== null)
-		align_at = _align_at;
-
-	if(ast.grouped > 1)
-		return render_group({...ast, grouped: 0});
-
-	if(ast.placeholder)
+	if(node.placeholder)
 		return `<span>&squ;</span>`;
 
-	if(ast.variable)
-		return `<var>${ast.variable}</var>`;
+	if(node.variable)
+		return `<var>${node.variable}</var>`;
 
-	if(ast.subscript)
-		return `<span>${render(ast.base, toplevel)}<sub>${render(ast.subscript)}</sub></span>`;
+	if(node.number)
+		return `<math-num>${node.number}</math-num>`;
 
-	if(ast.number)
-		return `<math-num>${ast.number}</math-num>`;
+	if(node.string)
+		return `<span>${node.string}</span>`;
 
-	if(ast.string)
-		return `<span>${ast.string}</span>`;
+	if(node.group)
+		return render_group(node.group);
 
-	if(ast.binop)
-		return render_binop(ast.left, ast.binop, ast.right, toplevel);
+	if(node.subscript)
+		return render_subscript(node.base, node.subscript, toplevel);
 
-	if(ast.prefix)
-		return render_op(ast.prefix, true) + render(ast.child, toplevel);
+	if(node.func)
+		return render_func(node.func, node.arg, toplevel);
 
-	if(ast.power)
-		return `<span>${render(ast.base, toplevel)}<sup>${render(ast.expo)}</sup></span>`;
+	if(node.expo)
+		return render_power(node.base, node.expo, toplevel);
 
-	if(ast.func)
-		return render_func(ast.func, ast.arg, toplevel);
+	if(node.prefix)
+		return render_op(node.prefix, true) + render_node(node.child, toplevel);
 
-	if(ast.equ)
-		return render_equ(ast.chain, toplevel);
+	if(node.binop)
+		return render_binop(node.left, node.binop, node.right, toplevel);
 
-	if(ast.list)
-		return render_list(ast.list);
+	if(node.equ)
+		return render_equ(node.equ, toplevel);
+
+	if(node.list)
+		return node.list.map(line => `<math-line><math-col>${render_node(line, true)}<math-col></math-line>`).join("");
+}
+
+export function render(ast, _align_at = "")
+{
+	align_at = _align_at.split(/\s+/);
+	return `<math-root>${render_node(ast)}</math-root>`;
 }

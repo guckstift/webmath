@@ -1,22 +1,23 @@
-let tokens = null;
+let tokenbuf = null;
+
+function peek()
+{
+	return tokenbuf[0] || {};
+}
+
+function tokenval(token)
+{
+	return Object.values(token)[0];
+}
 
 function match(query)
 {
-	return tokens.length && (!query || tokens[0][query] || tokens[0].text === query);
+	return !query || peek()[query] || tokenval(peek()) === query;
 }
 
 function eat(query)
 {
-	if(match(query)) {
-		let token = tokens[0];
-		tokens.splice(0, 1);
-		return token;
-	}
-}
-
-function inc_group(e)
-{
-	e.grouped = e.grouped ? e.grouped + 1 : 1;
+	return match(query) && tokenbuf.length && tokenval(tokenbuf.shift());
 }
 
 function placeholder()
@@ -26,34 +27,27 @@ function placeholder()
 
 function variable()
 {
-	if(match("name"))
-		return {variable: eat().text, level: 0};
+	return match("name") && {variable: eat()};
 }
 
 function number()
 {
-	if(match("number"))
-		return {number: eat().text, level: 0};
+	return match("number") && {number: eat()};
 }
 
 function string()
 {
-	if(match("string"))
-		return {string: eat().text, level: 0};
+	return match("string") && {string: eat()};
 }
 
 function group()
 {
-	if(eat("(")) {
-		let e = expr();
+	if(!eat("("))
+		return;
 
-		if(!e)
-			e = placeholder();
-
-		eat(")");
-		inc_group(e);
-		return e;
-	}
+	let group = expr() || placeholder();
+	eat(")");
+	return {group};
 }
 
 function atom()
@@ -63,106 +57,66 @@ function atom()
 
 function subscript()
 {
-	let vari = atom();
-
-	if(!vari)
-		return;
-
-	if(eat("_")) {
-		let sub = subscript();
-
-		if(!sub)
-			sub = placeholder();
-
-		return {subscript: sub, base: vari};
-	}
-
-	return vari;
-}
-
-function func()
-{
-	let backup = tokens.slice();
-	let name = eat("name");
-
-	if(name && eat("(")) {
-		let arg = expr();
-
-		if(!arg)
-			arg = placeholder();
-
-		eat(")");
-		return {func: name.text, arg};
-	}
-
-	tokens = backup;
-	return subscript();
-}
-
-function power()
-{
-	const level = 1;
-	let base = func();
+	let base = atom();
 
 	if(!base)
 		return;
 
-	if(!eat("**") && !eat("^"))
+	if(!eat("_"))
 		return base;
 
-	if(base.level > level)
-		inc_group(base);
+	return {subscript: subscript() || placeholder(), base};
+}
 
-	let expo = power();
+function func()
+{
+	let backup = tokenbuf.slice();
+	let func = variable();
 
-	if(!expo)
-		expo = placeholder();
+	if(!func || !eat("(")) {
+		tokenbuf = backup;
+		return subscript();
+	}
 
-	return {power: true, base, expo, level};
+	let arg = expr() || placeholder();
+	eat(")");
+	return {func, arg};
+}
+
+function power()
+{
+	let base = func();
+
+	if(!base || !eat("**") && !eat("^"))
+		return base;
+
+	let expo = power() || placeholder();
+	return {base, expo};
 }
 
 function prefixed()
 {
-	const level = 2;
-	let op = eat("+-") || eat("+") || eat("-");
+	let prefix = eat("+-") || eat("+") || eat("-");
 
-	if(op) {
-		let child = power();
+	if(!prefix)
+		return power();
 
-		if(!child)
-			child = placeholder();
-
-		if(child.level > level && child.binop !== "/")
-			inc_group(child);
-
-		return {prefix: op.text, child, level};
-	}
-
-	return power();
+	let child = power() || placeholder();
+	return {prefix, child};
 }
 
-function binop(ops, subparser, level)
+function binop(ops, subparser)
 {
 	let left = subparser();
 
 	while(left) {
-		let op = ops.find(op => eat(op));
+		let binop = ops.find(op => eat(op));
 
-		if(!op)
+		if(!binop)
 			break;
 
-		let right = subparser();
-
-		if(!right)
-			right = placeholder();
-
-		if(op !== "/" && left.level > level)
-			inc_group(left);
-
-		if(op !== "/" && right.level >= level && right.binop !== "/")
-			inc_group(right);
-
-		left = {binop: op, left, right, level};
+		let right = subparser() || placeholder();
+		left = {binop, left, right};
 	}
 
 	return left;
@@ -170,12 +124,12 @@ function binop(ops, subparser, level)
 
 function mul()
 {
-	return binop(["*", "/"], prefixed, 10);
+	return binop(["*", "/"], prefixed);
 }
 
 function add()
 {
-	return binop(["+", "-"], mul, 11);
+	return binop(["+", "-"], mul);
 }
 
 function expr()
@@ -185,49 +139,33 @@ function expr()
 
 function equ()
 {
-	let left = expr();
-	let tail = [];
+	let chain = [expr()];
 
-	while(left) {
-		let op = eat("=") || eat("<") || eat(">");
+	if(!chain[0])
+		return;
 
-		if(!op)
-			break;
+	while(match("=") || match("<") || match(">"))
+		chain.push(eat(), expr() || placeholder());
 
-		let right = expr();
-
-		if(!right)
-			right = placeholder();
-
-		tail.push(op.text, right);
-	}
-
-	if(tail.length)
-		return {equ: true, chain: [left, ... tail]};
-	else
-		return left;
+	return chain.length === 1 ? chain[0] : {equ: chain};
 }
 
 function list()
 {
 	let list = [];
+	let eq = equ();
 
-	while(true) {
-		let eq = equ();
-
-		if(!eq)
-			break;
-
+	while(eq) {
 		list.push(eq);
-		eat(";")
+		eat(";");
+		eq = equ();
 	}
 
 	return {list};
 }
 
-export function parse(_tokens)
+export function parse(tokens)
 {
-	tokens = _tokens;
-	let result = list();
-	return result;
+	tokenbuf = tokens.slice();
+	return list();
 }

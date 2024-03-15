@@ -4,23 +4,26 @@ export function postprocess(elm)
 		postprocess(child);
 	}
 
+	if(!elm.matches)
+		return;
+
 	if(elm.matches("sup")) {
 		let sup = elm;
 		let base = sup.previousElementSibling;
 		let sup_rect = sup.getBoundingClientRect();
 		let base_rect = base.getBoundingClientRect();
-		let font_size = parseFloat(getComputedStyle(sup).fontSize);
+		let font_size = parseFloat(getComputedStyle(base).fontSize);
 
-		sup.style.verticalAlign = (sup_rect.bottom - base_rect.y - 2 * font_size / 3) + "px";
+		sup.style.verticalAlign = (sup_rect.bottom - base_rect.y - font_size / 2) + "px";
 	}
 	else if(elm.matches("sub")) {
 		let sub = elm;
 		let base = sub.previousElementSibling;
 		let sub_rect = sub.getBoundingClientRect();
 		let base_rect = base.getBoundingClientRect();
-		let font_size = parseFloat(getComputedStyle(sub).fontSize);
+		let font_size = parseFloat(getComputedStyle(base).fontSize);
 
-		sub.style.verticalAlign = (sub_rect.y - base_rect.bottom + 2 * font_size / 3) + "px";
+		sub.style.verticalAlign = (sub_rect.y - base_rect.bottom + font_size / 2) + "px";
 	}
 	else if(elm.matches("math-frac")) {
 		let frac = elm;
@@ -37,11 +40,11 @@ export function postprocess(elm)
 		}
 
 		if(op) {
-			let line = frac.querySelector(":scope > math-hline");
-			let line_rect = line.getBoundingClientRect();
+			let denom = frac.querySelector(":scope > math-denom");
+			let denom_rect = denom.getBoundingClientRect();
 			let op_rect = op.getBoundingClientRect();
 
-			frac.style.verticalAlign = (line_rect.y + line_rect.bottom) / 2 - (op_rect.y + op_rect.bottom) / 2 + "px";
+			frac.style.verticalAlign = denom_rect.y - (op_rect.y + op_rect.bottom) / 2 - 0.5 + "px";
 		}
 		else {
 			let frac_rect = frac.parentElement.getBoundingClientRect();
@@ -52,17 +55,15 @@ export function postprocess(elm)
 	}
 	else if(elm.matches("math-sqrt")) {
 		let sqrt = elm;
-		let base_size = parseFloat(getComputedStyle(sqrt).fontSize) + 1;
 		let sqrt_rect = sqrt.getBoundingClientRect();
-		let scale = sqrt_rect.height / base_size;
 
-		sqrt.style.setProperty("--scale", scale);
+		sqrt.style.setProperty("--height", sqrt_rect.height + "px");
 	}
 	else if(elm.matches("math-line")) {
 		let i = 0;
 
 		for(let col of elm.querySelectorAll(":scope > math-col")) {
-			let col_var = "--col-" + i + "-width";
+			let col_var = `--col-${i}-width`;
 			let col_rect = col.getBoundingClientRect();
 			let root = elm.closest("math-root");
 			let width = parseFloat(root.style.getPropertyValue(col_var) || 0);

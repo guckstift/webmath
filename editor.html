@@ -5,7 +5,6 @@
 		<title>webmath editor</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="description" content="webmath editor demo">
-		<script type="module" src="webmath.js"></script>
 		<style>
 			body {
 				display: flex;
@@ -17,21 +16,22 @@
 				flex: 1;
 				margin: 1em;
 			}
+
 			math-block {
 				flex: 1;
 				margin: 1em;
 			}
 		</style>
-	</head>
-	<body>
-		<textarea></textarea>
-		<math-block></math-block>
+		<script src="webmath.js"></script>
 		<script type="module">
 			document.querySelector("textarea").addEventListener("input", e => {
 				let block = document.querySelector("math-block");
 				block.innerHTML = e.target.value;
-				block.update();
 			});
 		</script>
+	</head>
+	<body>
+		<textarea></textarea>
+		<math-block></math-block>
 	</body>
 </html>
